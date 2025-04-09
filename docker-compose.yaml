@@ -1,0 +1,43 @@
+version: "3.9"
+
+networks:
+  table-reservation:
+
+services:
+  # сервис приложения FastAPI
+  table-reservation-app:
+    build: .
+    container_name: table-reservation-app
+    command: uvicorn main:app --log-config logging.conf --reload --host 0.0.0.0 --port=8000
+    ports:
+      - "8010:8000"
+    volumes:
+      - ./src:/src
+      - ./docs:/docs
+    env_file:
+      - .env
+    depends_on:
+      table-reservation-db:
+        condition: service_healthy
+    networks:
+      - table-reservation
+
+  # сервис СУБД PostgreSQL
+  table-reservation-db:
+    image: postgres:15-alpine
+    container_name: table-reservation-db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "54320:5432"
+    # https://docs.docker.com/compose/compose-file/compose-file-v3/#healthcheck
+    healthcheck:
+      # https://www.postgresql.org/docs/current/app-pg-isready.html
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - table-reservation
