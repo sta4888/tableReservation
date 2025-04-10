@@ -50,14 +50,3 @@ async def delete_table(
     response.status_code = 204
     return Response(status_code=204)
 
-
-items = {"foo": {"name": "Foo", "description": "A test item"}}
-
-@router.get("/items/{item_id}")
-async def read_item(item_id: str):
-
-    return {'one':item_id}
-
-@router.post("/items/{item_id}")
-async def create_item(item_id: str, item: dict):
-    return {'one':item_id, 'item': item}
