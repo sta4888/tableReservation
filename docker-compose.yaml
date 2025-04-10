@@ -42,6 +42,7 @@ services:
     networks:
       - table-reservation
 
+
   table-reservation-pgadmin:
     image: dpage/pgadmin4
     container_name: table-reservation-pg
