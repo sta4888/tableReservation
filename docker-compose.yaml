@@ -41,3 +41,15 @@ services:
       retries: 5
     networks:
       - table-reservation
+
+  table-reservation-pgadmin:
+    image: dpage/pgadmin4
+    container_name: table-reservation-pg
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.ru
+      PGADMIN_DEFAULT_PASSWORD: root
+    networks:
+      - table-reservation
