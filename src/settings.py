@@ -14,22 +14,6 @@ class Project(BaseModel):
     release_version: str = Field(default="0.1.0")
 
 
-class RabbitMQQueue(BaseModel):
-    """
-    Список названий очередей.
-    """
-
-    places_import: str = Field(default="places_import")
-
-
-class RabbitMQConfig(BaseModel):
-    """
-    Конфигурация RabbitMQ.
-    """
-
-    uri: str = Field(default="amqp://user:secret@countries-informer-rabbitmq:5672")
-    queue: RabbitMQQueue
-
 
 class Settings(BaseSettings):
     """
@@ -48,8 +32,6 @@ class Settings(BaseSettings):
     database_url: PostgresDsn = Field(
         default="postgresql+asyncpg://table_reservation_user:secret@db/table_reservation"
     )
-    #: конфигурация RabbitMQ
-    rabbitmq: RabbitMQConfig
 
     class Config:
         env_file = ".env"
