@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import Session, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from integrations.db.session import get_session
-from models.models import Table
+from repositories.repository import get_table_repository
+from repositories.table_repository import ITableRepository
+from repositories.table_repository import TableRepository
+
+
 from schemas.schemas import TableRead, TableCreate
 
 tag_tables = {
@@ -13,39 +15,23 @@ tag_tables = {
 
 router = APIRouter()
 
-
 @router.get("/", response_model=list[TableRead])
-async def get_tables(session: Session = Depends(get_session)):
-    result = await session.execute(select(Table))
-    return result.scalars().all()
-
+async def get_tables(
+    repository: ITableRepository = Depends(get_table_repository)
+):
+    return await repository.get_all()
 
 @router.post("/", response_model=TableRead)
 async def create_table(
     table: TableCreate,
-    session: Session = Depends(get_session)
+    repository: ITableRepository = Depends(get_table_repository)
 ):
-    db_table = Table(**table.dict())
-    session.add(db_table)
-    await session.commit()
-    await session.refresh(db_table)
-    return db_table
-
+    return await repository.create(table)
 
 @router.delete("/{table_id}", status_code=204)
 async def delete_table(
-        table_id: int,
-        session: AsyncSession = Depends(get_session),
-        response: Response = None  # Добавляем параметр Response
+    table_id: int,
+    repository: ITableRepository = Depends(get_table_repository)
 ):
-    """Удаление столика."""
-    table = await session.get(Table, table_id)
-    if not table:
-        raise HTTPException(status_code=404, detail="Столик не найден")
-
-    await session.delete(table)
-    await session.commit()
-
-    # Устанавливаем пустой ответ
-    response.status_code = 204
+    await repository.delete(table_id)
     return Response(status_code=204)
