@@ -1,16 +1,14 @@
-import pytest
 from datetime import datetime, timedelta
-from models.models import Table, Reservation
+
+import pytest
+
+from models.models import Reservation, Table
 
 
 @pytest.mark.asyncio
 async def test_create_reservation(client, session):
 
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
     await session.refresh(table)
@@ -21,8 +19,8 @@ async def test_create_reservation(client, session):
             "customer_name": "Test User",
             "table_id": table.id,
             "reservation_time": datetime.now().isoformat(),
-            "duration_minutes": 60
-        }
+            "duration_minutes": 60,
+        },
     )
     assert response.status_code == 200
     assert response.json()["customer_name"] == "Test User"
@@ -31,11 +29,7 @@ async def test_create_reservation(client, session):
 @pytest.mark.asyncio
 async def test_get_reservations(client, session):
     # Create a sample reservation
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
     await session.refresh(table)
@@ -44,7 +38,7 @@ async def test_get_reservations(client, session):
         customer_name="Test User",
         table_id=table.id,
         reservation_time=datetime.now(),
-        duration_minutes=60
+        duration_minutes=60,
     )
     session.add(reservation)
     await session.commit()
@@ -58,11 +52,7 @@ async def test_get_reservations(client, session):
 @pytest.mark.asyncio
 async def test_delete_reservation(client, session):
     # Create a reservation to delete
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
     await session.refresh(table)
@@ -71,7 +61,7 @@ async def test_delete_reservation(client, session):
         customer_name="Test User",
         table_id=table.id,
         reservation_time=datetime.now(),
-        duration_minutes=60
+        duration_minutes=60,
     )
     session.add(reservation)
     await session.commit()
@@ -92,11 +82,7 @@ async def test_delete_nonexistent_reservation(client):
 @pytest.mark.skip
 async def test_create_overlapping_reservation(client, session):
     # Create initial reservation
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
     await session.refresh(table)
@@ -105,7 +91,7 @@ async def test_create_overlapping_reservation(client, session):
         customer_name="Test User",
         table_id=table.id,
         reservation_time=datetime.now(),
-        duration_minutes=60
+        duration_minutes=60,
     )
     session.add(reservation)
     await session.commit()
@@ -118,8 +104,8 @@ async def test_create_overlapping_reservation(client, session):
             "customer_name": "Test User 2",
             "table_id": table.id,
             "reservation_time": (start_time + timedelta(minutes=30)).isoformat(),
-            "duration_minutes": 30
-        }
+            "duration_minutes": 30,
+        },
     )
     assert response.status_code == 409
 
@@ -133,7 +119,7 @@ async def test_create_reservation_with_nonexistent_table(client):
             "customer_name": "Test User",
             "table_id": 99999,
             "reservation_time": datetime.now().isoformat(),
-            "duration_minutes": 60
-        }
+            "duration_minutes": 60,
+        },
     )
     assert response.status_code == 404

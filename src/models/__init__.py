@@ -1,1 +1,1 @@
-from .models import Table, Reservation  # noqa: F401
+from .models import Reservation, Table  # noqa: F401

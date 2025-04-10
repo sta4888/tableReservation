@@ -23,7 +23,7 @@ project = settings.project.title
 version = settings.project.release_version
 # the full project version, including alpha/beta/rc tags
 release = settings.project.release_version
-author = "Michael"
+author = "Eugene"
 copyright = f"{date.today().year}, {author}"
 
 # -- General configuration ---------------------------------------------------

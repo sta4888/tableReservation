@@ -1,5 +1,7 @@
-import pytest
 from datetime import datetime
+
+import pytest
+
 from models.models import Table
 
 
@@ -7,11 +9,7 @@ from models.models import Table
 async def test_create_table(client, session):
     response = await client.post(
         "/api/v1/tables/",
-        json={
-            "name": "New Table",
-            "seats": 4,
-            "location": "Main Hall"
-        }
+        json={"name": "New Table", "seats": 4, "location": "Main Hall"},
     )
     assert response.status_code == 200
     assert response.json()["name"] == "New Table"
@@ -19,11 +17,7 @@ async def test_create_table(client, session):
 
 @pytest.mark.asyncio
 async def test_get_tables(client, session):
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
 
@@ -35,11 +29,7 @@ async def test_get_tables(client, session):
 
 @pytest.mark.asyncio
 async def test_delete_table(client, session):
-    table = Table(
-        name="Test Table",
-        seats=4,
-        location="Main Hall"
-    )
+    table = Table(name="Test Table", seats=4, location="Main Hall")
     session.add(table)
     await session.commit()
     await session.refresh(table)

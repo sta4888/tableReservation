@@ -1,9 +1,10 @@
 from typing import List, Optional
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from exceptions import ObjectNotFoundException, ConflictException
-from models.models import Table, Reservation
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from exceptions import ConflictException, ObjectNotFoundException
+from models.models import Reservation, Table
 
 
 class TableRepository:
@@ -32,7 +33,9 @@ class TableRepository:
             select(Reservation).where(Reservation.table_id == table_id)
         )
         if result.scalars().first():
-            raise ConflictException(detail="Невозможно удалить столик с активными бронированиями")
+            raise ConflictException(
+                detail="Невозможно удалить столик с активными бронированиями"
+            )
 
         await self.session.delete(table)
         await self.session.commit()

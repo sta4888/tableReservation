@@ -14,7 +14,6 @@ class Project(BaseModel):
     release_version: str = Field(default="0.1.0")
 
 
-
 class Settings(BaseSettings):
     """
     Настройки проекта.

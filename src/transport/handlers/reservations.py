@@ -5,11 +5,11 @@ from integrations.db.session import get_session
 from models import Reservation
 from repositories.reservation_repository import ReservationRepository
 from repositories.table_repository import TableRepository
-from schemas.schemas import ReservationRead, ReservationCreate
+from schemas.schemas import ReservationCreate, ReservationRead
 
 tag_reservations = {
     "name": "Reservations",
-    "description": "Управление бронями столиков"
+    "description": "Управление бронями столиков",
 }
 
 router = APIRouter()
@@ -25,15 +25,15 @@ def get_table_repository(session: AsyncSession = Depends(get_session)):
 
 @router.get("/", response_model=list[ReservationRead])
 async def get_reservations(
-        repository: ReservationRepository = Depends(get_reservation_repository)
+    repository: ReservationRepository = Depends(get_reservation_repository),
 ):
     return await repository.get_all()
 
 
 @router.post("/", response_model=ReservationRead)
 async def create_reservation(
-        reservation: ReservationCreate,
-        repository: ReservationRepository = Depends(get_reservation_repository),
+    reservation: ReservationCreate,
+    repository: ReservationRepository = Depends(get_reservation_repository),
 ):
     try:
         return await repository.create(Reservation(**reservation.dict()))
@@ -43,8 +43,8 @@ async def create_reservation(
 
 @router.delete("/{reservation_id}", status_code=204)
 async def delete_reservation(
-        reservation_id: int,
-        repository: ReservationRepository = Depends(get_reservation_repository)
+    reservation_id: int,
+    repository: ReservationRepository = Depends(get_reservation_repository),
 ):
     try:
         await repository.delete(reservation_id)

@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
-from sqlmodel import Column, DateTime, Field
 from sqlalchemy import func
+from sqlmodel import Column, DateTime, Field
+
 
 class TimeStampMixin(BaseModel):
     """

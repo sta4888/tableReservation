@@ -1,6 +1,5 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Union
 
-from typing import Optional, Union
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
@@ -14,9 +13,7 @@ class ApiHTTPException(HTTPException):
     code: str
     detail: str
 
-    def __init__(
-            self, status_code: Optional[int] = None, detail: Any = None
-    ) -> None:
+    def __init__(self, status_code: Optional[int] = None, detail: Any = None) -> None:
         status_code = status_code or self.status_code
         detail = detail or self.detail
         super().__init__(status_code=status_code, detail=detail)
@@ -56,7 +53,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(
-            request: Request, exc: RequestValidationError
+        request: Request, exc: RequestValidationError
     ) -> JSONResponse:
         """
         Обработка ошибок валидации.
@@ -70,7 +67,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(ApiHTTPException)
     async def handle_api_exceptions(
-            request: Request, exc: ApiHTTPException
+        request: Request, exc: ApiHTTPException
     ) -> JSONResponse:
         """
         Обработка ошибок API.
@@ -115,7 +112,6 @@ def api_exception(exc: Exception) -> JSONResponse:
     :param exc:
     :return:
     """
-
 
     code = "server_error"
     description = "Внутренняя ошибка сервера."

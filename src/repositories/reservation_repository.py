@@ -1,9 +1,10 @@
-from typing import List, Optional
 from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func
+from typing import List, Optional
 
-from exceptions import ObjectNotFoundException, ConflictException
+from sqlalchemy import and_, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from exceptions import ConflictException, ObjectNotFoundException
 from models.models import Reservation, Table
 
 
@@ -22,7 +23,6 @@ class ReservationRepository:
         table = await self.session.get(Table, reservation.table_id)
         if not table:
             raise ObjectNotFoundException(detail="Столик не найден")
-
 
         conflict_query = select(Reservation).where(
             and_(
