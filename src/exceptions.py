@@ -1,8 +1,8 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
+from typing import Optional, Union
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from httpx import Response
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
@@ -15,8 +15,8 @@ class ApiHTTPException(HTTPException):
     detail: str
 
     def __init__(
-        self, status_code: Optional[int] = None, detail: Any = None
-    ) -> None:  # noqa: D107
+            self, status_code: Optional[int] = None, detail: Any = None
+    ) -> None:
         status_code = status_code or self.status_code
         detail = detail or self.detail
         super().__init__(status_code=status_code, detail=detail)
@@ -38,28 +38,12 @@ class ObjectNotFoundException(ApiHTTPException):
     detail = "Объект не найден."
 
 
-class ForbiddenException(ApiHTTPException):
-    """Доступ запрещен."""
+class ConflictException(ApiHTTPException):
+    """Конфликт (например, при бронировании)."""
 
-    status_code = status.HTTP_403_FORBIDDEN
-    code = "forbidden"
-    detail = "Доступ запрещен."
-
-
-class ServiceAuthTokenMismatch(ApiHTTPException):
-    """Сервисный токен авторизации не совпадает со списком существующих."""
-
-    status_code = status.HTTP_403_FORBIDDEN
-    code = "service_auth_token_invalid"
-    detail = "Передан неверный токен авторизации."
-
-
-class UnauthorizedException(ApiHTTPException):
-    """Исключение для неправильных данных юзера при авторизации."""
-
-    status_code = status.HTTP_401_UNAUTHORIZED
-    code = "Unauthorized"
-    detail = "Переданы неверные данные пользователя"
+    status_code = status.HTTP_409_CONFLICT
+    code = "conflict"
+    detail = "Конфликт с существующими данными."
 
 
 def setup_exception_handlers(app: FastAPI) -> None:
@@ -72,7 +56,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(
-        request: Request, exc: RequestValidationError
+            request: Request, exc: RequestValidationError
     ) -> JSONResponse:
         """
         Обработка ошибок валидации.
@@ -81,14 +65,12 @@ def setup_exception_handlers(app: FastAPI) -> None:
         :param exc:
         :return:
         """
-        # pylint: disable=unused-argument
-        # pylint: disable=unused-variable
 
         return api_http_exception(ValidationErrorException(detail=exc.errors()))
 
     @app.exception_handler(ApiHTTPException)
     async def handle_api_exceptions(
-        request: Request, exc: ApiHTTPException
+            request: Request, exc: ApiHTTPException
     ) -> JSONResponse:
         """
         Обработка ошибок API.
@@ -97,8 +79,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
         :param exc:
         :return:
         """
-        # pylint: disable=unused-argument
-        # pylint: disable=unused-variable
 
         return api_http_exception(exc)
 
@@ -111,8 +91,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         :param exc:
         :return:
         """
-        # pylint: disable=unused-argument
-        # pylint: disable=unused-variable
+
         return api_exception(exc)
 
 
@@ -136,8 +115,7 @@ def api_exception(exc: Exception) -> JSONResponse:
     :param exc:
     :return:
     """
-    # pylint: disable=unused-argument
-    # pylint: disable=unused-variable
+
 
     code = "server_error"
     description = "Внутренняя ошибка сервера."
@@ -167,57 +145,3 @@ def format_exception(code: str, description: Union[str, Dict]) -> Dict:
 class ValidationErrorDetail(BaseModel):
     key: str
     errors: List[str]
-
-
-class ValidationErrorWithDetails(ApiHTTPException):
-    """Ошибка валидации данных."""
-
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "validation_error"
-
-    def __init__(  # noqa: D107
-        self,
-        header: Optional[List[ValidationErrorDetail]] = None,
-        query: Optional[List[ValidationErrorDetail]] = None,
-        path: Optional[List[ValidationErrorDetail]] = None,
-        body: Optional[List[ValidationErrorDetail]] = None,
-    ):
-        status_code = self.status_code
-        details = {}
-        if header:
-            details["header"] = self._form_error_dict(header)
-
-        if query:
-            details["query"] = self._form_error_dict(query)
-
-        if path:
-            details["path"] = self._form_error_dict(path)
-
-        if body:
-            details["body"] = self._form_error_dict(body)
-
-        super().__init__(status_code=status_code, detail=details)
-
-    @staticmethod
-    def _form_error_dict(details: List[ValidationErrorDetail]) -> Dict:
-        errors = {}
-        for detail in details:
-            errors[detail.key] = detail.errors
-        return errors
-
-
-class BaseApiException(Exception):
-    """Ошибка запроса."""
-
-    def __init__(
-        self, *args: Any, response: Optional[Response] = None, **kwargs: Any
-    ) -> None:
-        """Инициализировать исключения в API."""
-        if response is not None:
-            self.response = response
-
-        elif args and isinstance(args[0], Response):
-            self.response = args[0]
-            args = args[1:]
-
-        super().__init__(*args, **kwargs)

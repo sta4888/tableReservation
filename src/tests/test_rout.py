@@ -19,7 +19,6 @@ async def test_create_table(client, session):
 
 @pytest.mark.asyncio
 async def test_get_tables(client, session):
-    # Create a sample table
     table = Table(
         name="Test Table",
         seats=4,
@@ -36,7 +35,6 @@ async def test_get_tables(client, session):
 
 @pytest.mark.asyncio
 async def test_delete_table(client, session):
-    # Create a table to delete
     table = Table(
         name="Test Table",
         seats=4,
